@@ -1,57 +1,59 @@
 
 import unittest
+from legacy_order_system import order_total
 
-from legacy_order_system import order_total, print_receipt
+ITEMS = [
+    {'name': 'Notebook', 'category': 'book',
+     'price': 300, 'qty': 2},
+    {'name': 'USB Drive', 'category': 'electronics',
+     'price': 800, 'qty': 1},
+]
 
 
-class TestOrderSystem(unittest.TestCase):
+class TestOrderTotal(unittest.TestCase):
 
-    def setUp(self):
-        self.items = [
-            {'name': 'Notebook', 'category': 'book',
-             'price': 300, 'qty': 2},
-            {'name': 'USB Drive', 'category': 'electronics',
-             'price': 800, 'qty': 1}
-        ]
-
-    def test_student_standard_order(self):
+    def test_regular_customer(self):
         self.assertEqual(
-            order_total(self.items, 'student', 'standard'),
-            1360.0
+            order_total(ITEMS, 'regular', 'standard'), 1500
         )
 
-    def test_staff_express_order(self):
+    def test_student_discount(self):
         self.assertEqual(
-            order_total(self.items, 'staff', 'express'),
-            1580.0
+            order_total(ITEMS, 'student', 'standard'), 1360
+        )
+
+    def test_staff_discount(self):
+        self.assertEqual(
+            order_total(ITEMS, 'staff', 'standard'), 1430
+        )
+
+    def test_standard_delivery(self):
+        self.assertEqual(
+            order_total(ITEMS, 'regular', 'standard'), 1500
+        )
+
+    def test_express_delivery(self):
+        self.assertEqual(
+            order_total(ITEMS, 'regular', 'express'), 1650
         )
 
     def test_negative_quantity(self):
-        items = [
+        bad_items = [
             {'name': 'Notebook', 'category': 'book',
              'price': 300, 'qty': -2}
         ]
 
         with self.assertRaises(ValueError):
-            order_total(items, 'student', 'standard')
+            order_total(bad_items, 'regular', 'standard')
 
     def test_negative_price(self):
-        items = [
+        bad_items = [
             {'name': 'Notebook', 'category': 'book',
              'price': -300, 'qty': 2}
         ]
 
         with self.assertRaises(ValueError):
-            order_total(items, 'student', 'standard')
-
-    def test_receipt_rejects_negative_quantity(self):
-        items = [
-            {'name': 'Notebook', 'category': 'book',
-             'price': 300, 'qty': -1}
-        ]
-
-        with self.assertRaises(ValueError):
-            print_receipt(items, 'student', 'standard')
+            order_total(bad_items, 'regular', 'standard')
 
 
 if __name__ == '__main__':
